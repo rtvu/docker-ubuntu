@@ -1,4 +1,4 @@
-name: on push
+name: On Push Dockerfile
 
 on:
   push:
@@ -6,11 +6,10 @@ on:
       - "main"
 
 jobs:
-  docker:
-    uses: ./.github/workflows/build-and-publish.yml
+  on-push-dockerfile:
+    uses: ./.github/workflows/build-and-publish-to-docker-hub.yml
     with:
       repository: ${{ github.repository }}
-      version: 22.04
     secrets:
       username: ${{ secrets.DOCKERHUB_USERNAME }}
       password: ${{ secrets.DOCKERHUB_TOKEN }}

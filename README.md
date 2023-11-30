@@ -1,6 +1,6 @@
 # DOCKER-UBUNTU
 
-Docker image with a non-root user.
+Docker image for Ubuntu with a non-root user.
 
 # User
 

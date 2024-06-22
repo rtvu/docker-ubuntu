@@ -4,13 +4,24 @@ on:
   push:
     branches:
       - 'main'
+      - '20.04'
     paths:
       - 'Dockerfile'
 
 jobs:
+  get-branch-name:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.branch-names.outputs.current_branch }}
+    steps:
+      - name: Get branch names
+        id: branch-names
+        uses: tj-actions/branch-names@v8
   on-push-dockerfile:
+    needs: get-branch-name
     uses: ./.github/workflows/build-and-publish-to-docker-hub.yml
     with:
+      branch: ${{ needs.get-branch-name.outputs.branch }}
       repository: ${{ github.repository }}
     secrets:
       username: ${{ secrets.DOCKERHUB_USERNAME }}

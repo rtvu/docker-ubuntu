@@ -6,14 +6,14 @@ env:
 on:
   workflow_call:
     inputs:
-      repository:
+      branch:
         required: true
         type: string
-    secrets:
-      username:
+  workflow_dispatch:
+    inputs:
+      branch:
         required: true
-      password:
-        required: true
+        type: string
 
 jobs:
   build-and-publish-to-docker-hub:
@@ -22,16 +22,18 @@ jobs:
       -
         name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
       -
         name: Get metadata
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ${{ inputs.repository }}
+          images: ${{ github.repository }}
           flavor: |
-            latest=true
+            latest=${{ inputs.branch == 'main' }}
           tags: |
-            type=raw,value=${{ env.VERSION }}
+            type=raw,value=${{ inputs.branch == 'main' && env.VERSION || inputs.branch }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3

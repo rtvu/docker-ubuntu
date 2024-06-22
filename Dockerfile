@@ -2,7 +2,7 @@
 # Base Image #
 ##############
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 #########################
 # Environment Variables #
@@ -33,7 +33,7 @@ RUN \
 ##############
 
 RUN \
-  adduser --disabled-password --gecos "" ${USER} && \
+  useradd --create-home ${USER} && \
   usermod --append --groups sudo ${USER} && \
   echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 

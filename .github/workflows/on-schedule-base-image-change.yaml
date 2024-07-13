@@ -1,0 +1,42 @@
+name: 'On Schedule Base Image Change'
+
+env:
+  VERSION: 24.04
+
+on:
+  schedule:
+    - cron:  '0 7 1,15 * *'
+  workflow_dispatch:
+
+jobs:
+  on-schedule-base-image-change:
+    strategy:
+      matrix:
+        branch: ["20.04", "22.04", "main"]
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: 'Check for base image change'
+        id: base-image-change
+        uses: lucacome/docker-image-update-checker@v1
+        with:
+          base-image: ubuntu:${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
+          image: ${{ github.repository }}:${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
+          platforms: linux/amd64,linux/arm64
+      -
+        name: 'Checkout repository'
+        if: steps.base-image-change.outputs.needs-updating == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+      -
+        name: 'Build and push image'
+        if: steps.base-image-change.outputs.needs-updating == 'true'
+        uses: rtvu/build-and-push-to-docker-hub-action@v1.0.1
+        with:
+          image: ${{ github.repository }}
+          latest: ${{ matrix.branch == 'main' }}
+          platforms: linux/amd64,linux/arm64
+          tag: ${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
+          token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}

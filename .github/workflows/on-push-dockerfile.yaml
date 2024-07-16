@@ -25,11 +25,11 @@ jobs:
           ref: ${{ steps.branch-names.outputs.current_branch }}
       -
         name: 'Build and push image'
-        uses: rtvu/build-and-push-to-docker-hub-action@v1.0.1
+        uses: rtvu/build-and-push-to-docker-hub-action@v2.0.0
         with:
           image: ${{ github.repository }}
           latest: true
           platforms: linux/amd64,linux/arm64
-          tag: ${{ env.VERSION }}
+          tags: ${{ env.VERSION }}
           token: ${{ secrets.DOCKER_HUB_TOKEN }}
           username: ${{ secrets.DOCKER_HUB_USERNAME }}

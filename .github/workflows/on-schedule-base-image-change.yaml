@@ -32,11 +32,11 @@ jobs:
       -
         name: 'Build and push image'
         if: steps.base-image-change.outputs.needs-updating == 'true'
-        uses: rtvu/build-and-push-to-docker-hub-action@v1.0.1
+        uses: rtvu/build-and-push-to-docker-hub-action@v2.0.0
         with:
           image: ${{ github.repository }}
           latest: ${{ matrix.branch == 'main' }}
           platforms: linux/amd64,linux/arm64
-          tag: ${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
+          tags: ${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
           token: ${{ secrets.DOCKER_HUB_TOKEN }}
           username: ${{ secrets.DOCKER_HUB_USERNAME }}

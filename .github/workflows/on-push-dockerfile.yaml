@@ -1,8 +1,5 @@
 name: 'On Push Dockerfile'
 
-env:
-  VERSION: 24.04
-
 on:
   push:
     branches:
@@ -15,21 +12,16 @@ jobs:
   on-push-dockerfile:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Get branch names'
-        id: branch-names
-        uses: tj-actions/branch-names@v8
       -
         name: 'Checkout repository'
         uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.branch-names.outputs.current_branch }}
       -
         name: 'Build and push image'
-        uses: rtvu/build-and-push-to-docker-hub-action@v2.0.0
+        uses: rtvu/build-and-push-to-docker-hub-action@v2
         with:
-          image: ${{ github.repository }}
+          image: ${{ vars.IMAGE }}
           latest: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ env.VERSION }}
+          platforms: ${{ vars.PLATFORMS }}
+          tags: ${{ vars.VERSION }}
           token: ${{ secrets.DOCKER_HUB_TOKEN }}
           username: ${{ secrets.DOCKER_HUB_USERNAME }}

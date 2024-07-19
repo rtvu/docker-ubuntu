@@ -1,8 +1,5 @@
 name: 'On Schedule Base Image Change'
 
-env:
-  VERSION: 24.04
-
 on:
   schedule:
     - cron:  '0 7 1,15 * *'
@@ -12,7 +9,7 @@ jobs:
   on-schedule-base-image-change:
     strategy:
       matrix:
-        branch: ["20.04", "22.04", "main"]
+        branch: ${{ fromJSON(vars.BRANCHES) }}
     runs-on: ubuntu-latest
     steps:
       -
@@ -20,9 +17,9 @@ jobs:
         id: base-image-change
         uses: lucacome/docker-image-update-checker@v1
         with:
-          base-image: ubuntu:${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
-          image: ${{ github.repository }}:${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
-          platforms: linux/amd64,linux/arm64
+          base-image: ubuntu:${{ matrix.branch == 'main' && vars.VERSION || matrix.branch }}
+          image: ${{ vars.IMAGE }}:${{ matrix.branch == 'main' && vars.VERSION || matrix.branch }}
+          platforms: ${{ vars.PLATFORMS }}
       -
         name: 'Checkout repository'
         if: steps.base-image-change.outputs.needs-updating == 'true'
@@ -32,11 +29,11 @@ jobs:
       -
         name: 'Build and push image'
         if: steps.base-image-change.outputs.needs-updating == 'true'
-        uses: rtvu/build-and-push-to-docker-hub-action@v2.0.0
+        uses: rtvu/build-and-push-to-docker-hub-action@v2
         with:
-          image: ${{ github.repository }}
+          image: ${{ vars.IMAGE }}
           latest: ${{ matrix.branch == 'main' }}
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ matrix.branch == 'main' && env.VERSION || matrix.branch }}
+          platforms: ${{ vars.PLATFORMS }}
+          tags: ${{ matrix.branch == 'main' && vars.VERSION || matrix.branch }}
           token: ${{ secrets.DOCKER_HUB_TOKEN }}
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
